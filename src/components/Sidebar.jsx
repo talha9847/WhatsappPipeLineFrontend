@@ -11,7 +11,7 @@ import {
 
 const NAV_ITEMS = [
   //   { to: "/dashboard", label: "Overview", icon: LayoutDashboard, end: true },
-  { to: "/", label: "Messages", icon: MessageSquare },
+  { to: "/messages", label: "Messages", icon: MessageSquare },
   ,
 ];
 
