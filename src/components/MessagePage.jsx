@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { NavLink } from "react-router-dom";
 import {
   Search,
   MapPin,
@@ -11,16 +12,125 @@ import {
   RotateCcw,
   Inbox,
   AlertCircle,
+  LayoutDashboard,
+  MessageSquare,
+  Users,
+  Settings,
+  Car,
+  X,
+  Menu,
 } from "lucide-react";
 
 // =====================================================
-// CONFIG
+// SIDEBAR & NAV CONFIG
 // =====================================================
 
-const API_BASE_URL =
-  import.meta?.env?.VITE_API_BASE_URL || "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const DEBOUNCE_MS = 400;
+
+const NAV_ITEMS = [
+  { to: "/dashboard", label: "Overview", icon: LayoutDashboard, end: true },
+  { to: "/dashboard/messages", label: "Messages", icon: MessageSquare },
+  { to: "/dashboard/groups", label: "Groups", icon: Users },
+  { to: "/dashboard/settings", label: "Settings", icon: Settings },
+];
+
+function NavItem({ to, label, icon: Icon, end, onNavigate }) {
+  return (
+    <NavLink
+      to={to}
+      end={end}
+      onClick={onNavigate}
+      className={({ isActive }) =>
+        [
+          "group flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400",
+          isActive
+            ? "bg-cyan-500/10 text-cyan-400 border border-cyan-400/30"
+            : "text-gray-300 border border-transparent hover:bg-white/5 hover:text-white",
+        ].join(" ")
+      }
+    >
+      <Icon size={18} className="shrink-0" />
+      <span>{label}</span>
+    </NavLink>
+  );
+}
+
+function Sidebar({ open, onClose }) {
+  // Lock scroll & handle escape key on mobile when sidebar opens
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape" && open) onClose();
+    };
+
+    if (open) {
+      document.body.style.overflow = "hidden";
+      window.addEventListener("keydown", handleKeyDown);
+    }
+
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [open, onClose]);
+
+  return (
+    <>
+      {/* Mobile backdrop */}
+      <div
+        aria-hidden="true"
+        onClick={onClose}
+        className={[
+          "fixed inset-0 z-30 bg-black/60 backdrop-blur-sm transition-opacity md:hidden",
+          open
+            ? "opacity-100 pointer-events-auto"
+            : "opacity-0 pointer-events-none",
+        ].join(" ")}
+      />
+
+      <aside
+        className={[
+          "fixed inset-y-0 left-0 z-40 w-64 shrink-0 border-r border-white/5 bg-[#0B0F14]",
+          "flex flex-col transition-transform duration-200 ease-out",
+          "md:sticky md:top-0 md:h-screen md:translate-x-0",
+          open ? "translate-x-0" : "-translate-x-full",
+        ].join(" ")}
+      >
+        <div className="flex items-center justify-between px-5 py-5 border-b border-white/5">
+          <div className="flex items-center gap-2">
+            <Car className="text-cyan-400" size={24} />
+            <span className="text-lg font-semibold text-white">SmartRide</span>
+          </div>
+
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close menu"
+            className="rounded-lg p-1.5 text-gray-400 hover:bg-white/5 hover:text-white md:hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+          >
+            <X size={20} />
+          </button>
+        </div>
+
+        <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+          {NAV_ITEMS.map((item) => (
+            <NavItem key={item.to} {...item} onNavigate={onClose} />
+          ))}
+        </nav>
+
+        <div className="border-t border-white/5 px-5 py-4">
+          <p className="text-xs text-gray-500">Dispatch pipeline · connected</p>
+        </div>
+      </aside>
+    </>
+  );
+}
+
+// =====================================================
+// MESSAGES PAGE & MAIN LAYOUT
+// =====================================================
 
 const SORT_OPTIONS = [
   { value: "time-desc", label: "Newest first", sortBy: "time", order: "desc" },
@@ -58,7 +168,6 @@ function formatTimestamp(ts) {
   });
 }
 
-// Shared input chrome — matches Login.jsx's icon-in-field pattern.
 function FieldInput({ icon: Icon, ...props }) {
   return (
     <div className="flex items-center gap-2 rounded-xl bg-[#1A2330] px-3 focus-within:ring-2 focus-within:ring-cyan-400/60">
@@ -72,6 +181,8 @@ function FieldInput({ icon: Icon, ...props }) {
 }
 
 export default function MessagesPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   const [q, setQ] = useState("");
   const [source, setSource] = useState("");
   const [destination, setDestination] = useState("");
@@ -180,224 +291,257 @@ export default function MessagesPage() {
   const unparsedOnPage = messages.filter((m) => m.structuredParseFailed).length;
 
   return (
-    <div className="mx-auto max-w-7xl space-y-6">
-      {/* STAT STRIP */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <StatChip label="Total matching" value={pagination.total} />
-        <StatChip label="Shown this page" value={messages.length} />
-        <StatChip
-          label="Unparsed on page"
-          value={unparsedOnPage}
-          tone={unparsedOnPage > 0 ? "warn" : "default"}
-        />
-      </div>
+    <div className="min-h-screen bg-[#0B0F14] text-white md:flex">
+      {/* SIDEBAR COMPONENT */}
+      <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-      {/* FILTER BAR */}
-      <div className="rounded-2xl border border-white/5 bg-[#111822] p-4 shadow-lg md:p-5">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          <div className="sm:col-span-2 lg:col-span-2">
-            <FieldInput
-              icon={Search}
-              type="text"
-              placeholder="Search source, destination, vehicle, contact, text…"
-              value={q}
-              onChange={(e) => setQ(e.target.value)}
-            />
+      {/* MAIN WRAPPER */}
+      <div className="flex flex-1 flex-col min-w-0">
+        {/* MOBILE TOPBAR */}
+        <header className="flex items-center justify-between border-b border-white/5 bg-[#0B0F14] px-4 py-3 md:hidden">
+          <div className="flex items-center gap-2">
+            <Car className="text-cyan-400" size={22} />
+            <span className="font-semibold text-white">SmartRide</span>
           </div>
-
-          <FieldInput
-            icon={MapPin}
-            type="text"
-            placeholder="Source"
-            value={source}
-            onChange={(e) => setSource(e.target.value)}
-          />
-
-          <FieldInput
-            icon={Navigation}
-            type="text"
-            placeholder="Destination"
-            value={destination}
-            onChange={(e) => setDestination(e.target.value)}
-          />
-
-          <FieldInput
-            icon={Truck}
-            type="text"
-            placeholder="Vehicle"
-            value={vehicle}
-            onChange={(e) => setVehicle(e.target.value)}
-          />
-
-          <FieldInput
-            icon={Phone}
-            type="text"
-            placeholder="Contact"
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-          />
-
-          <div className="flex items-center gap-2 rounded-xl bg-[#1A2330] px-3 focus-within:ring-2 focus-within:ring-cyan-400/60">
-            <ArrowDownUp size={16} className="shrink-0 text-gray-400" />
-            <select
-              value={sortValue}
-              onChange={(e) => setSortValue(e.target.value)}
-              className="w-full appearance-none bg-transparent py-2.5 text-sm text-white outline-none [&>option]:bg-[#111822]"
-            >
-              {SORT_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {hasFilters && (
           <button
             type="button"
-            onClick={clearFilters}
-            className="mt-3 inline-flex items-center gap-1.5 text-sm text-cyan-400 hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded"
+            onClick={() => setSidebarOpen(true)}
+            aria-label="Open sidebar menu"
+            className="rounded-lg p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
           >
-            <RotateCcw size={14} />
-            Clear filters
+            <Menu size={22} />
           </button>
-        )}
-      </div>
+        </header>
 
-      {/* ERROR */}
-      {error && (
-        <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
-          <AlertCircle size={16} className="shrink-0" />
-          {error}
-        </div>
-      )}
+        {/* CONTENT AREA */}
+        <main className="flex-1 p-4 md:p-8">
+          <div className="mx-auto max-w-7xl space-y-6">
+            {/* STAT STRIP */}
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+              <StatChip label="Total matching" value={pagination.total} />
+              <StatChip label="Shown this page" value={messages.length} />
+              <StatChip
+                label="Unparsed on page"
+                value={unparsedOnPage}
+                tone={unparsedOnPage > 0 ? "warn" : "default"}
+              />
+            </div>
 
-      {/* CONTENT */}
-      {loading && messages.length === 0 ? (
-        <LoadingState />
-      ) : messages.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <>
-          {/* Desktop / tablet table */}
-          <div className="hidden overflow-hidden rounded-2xl border border-white/5 bg-[#111822] shadow-lg md:block">
-            <table className="w-full text-left text-sm">
-              <thead>
-                <tr className="border-b border-white/5 text-xs font-medium text-gray-400">
-                  <th className="px-5 py-3">Time</th>
-                  <th className="px-5 py-3">Vehicle</th>
-                  <th className="px-5 py-3">Source</th>
-                  <th className="px-5 py-3">Destination</th>
-                  <th className="px-5 py-3">Contact</th>
-                  <th className="px-5 py-3">Message</th>
-                </tr>
-              </thead>
-              <tbody>
-                {messages.map((m) => (
-                  <tr
-                    key={m.id}
-                    className="border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition"
+            {/* FILTER BAR */}
+            <div className="rounded-2xl border border-white/5 bg-[#111822] p-4 shadow-lg md:p-5">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                <div className="sm:col-span-2 lg:col-span-2">
+                  <FieldInput
+                    icon={Search}
+                    type="text"
+                    placeholder="Search source, destination, vehicle, contact, text…"
+                    value={q}
+                    onChange={(e) => setQ(e.target.value)}
+                  />
+                </div>
+
+                <FieldInput
+                  icon={MapPin}
+                  type="text"
+                  placeholder="Source"
+                  value={source}
+                  onChange={(e) => setSource(e.target.value)}
+                />
+
+                <FieldInput
+                  icon={Navigation}
+                  type="text"
+                  placeholder="Destination"
+                  value={destination}
+                  onChange={(e) => setDestination(e.target.value)}
+                />
+
+                <FieldInput
+                  icon={Truck}
+                  type="text"
+                  placeholder="Vehicle"
+                  value={vehicle}
+                  onChange={(e) => setVehicle(e.target.value)}
+                />
+
+                <FieldInput
+                  icon={Phone}
+                  type="text"
+                  placeholder="Contact"
+                  value={contact}
+                  onChange={(e) => setContact(e.target.value)}
+                />
+
+                <div className="flex items-center gap-2 rounded-xl bg-[#1A2330] px-3 focus-within:ring-2 focus-within:ring-cyan-400/60">
+                  <ArrowDownUp size={16} className="shrink-0 text-gray-400" />
+                  <select
+                    value={sortValue}
+                    onChange={(e) => setSortValue(e.target.value)}
+                    className="w-full appearance-none bg-transparent py-2.5 text-sm text-white outline-none [&>option]:bg-[#111822]"
                   >
-                    <td className="whitespace-nowrap px-5 py-3.5 text-gray-400">
-                      {formatTimestamp(m.messageTimestamp)}
-                    </td>
-                    <td className="px-5 py-3.5 text-white">
-                      {m.vehicle || "—"}
-                    </td>
-                    <td className="px-5 py-3.5 text-white">
-                      {m.source || "—"}
-                    </td>
-                    <td className="px-5 py-3.5 text-white">
-                      {m.destination || "—"}
-                    </td>
-                    <td className="px-5 py-3.5 text-gray-300">
-                      {m.contactNumber || "—"}
-                    </td>
-                    <td className="max-w-sm px-5 py-3.5 text-gray-300">
-                      <span className="line-clamp-2">{m.messageText}</span>
-                      {m.structuredParseFailed && <UnparsedBadge />}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile cards */}
-          <div className="space-y-3 md:hidden">
-            {messages.map((m) => (
-              <div
-                key={m.id}
-                className="rounded-2xl border border-white/5 bg-[#111822] p-4 shadow-lg"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-gray-400">
-                    {formatTimestamp(m.messageTimestamp)}
-                  </span>
-                  {m.structuredParseFailed && <UnparsedBadge />}
+                    {SORT_OPTIONS.map((opt) => (
+                      <option key={opt.value} value={opt.value}>
+                        {opt.label}
+                      </option>
+                    ))}
+                  </select>
                 </div>
-
-                <div className="mt-2 flex items-center gap-2 text-white">
-                  <Truck size={16} className="text-cyan-400" />
-                  <span className="font-medium">
-                    {m.vehicle || "Vehicle unknown"}
-                  </span>
-                </div>
-
-                <div className="mt-1 flex items-center gap-2 text-sm text-gray-300">
-                  <MapPin size={14} className="text-gray-500" />
-                  <span>{m.source || "—"}</span>
-                  <span className="text-gray-600">→</span>
-                  <span>{m.destination || "—"}</span>
-                </div>
-
-                {m.contactNumber && (
-                  <div className="mt-1 flex items-center gap-2 text-sm text-gray-300">
-                    <Phone size={14} className="text-gray-500" />
-                    {m.contactNumber}
-                  </div>
-                )}
-
-                <p className="mt-2 text-sm text-gray-400">{m.messageText}</p>
               </div>
-            ))}
+
+              {hasFilters && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="mt-3 inline-flex items-center gap-1.5 text-sm text-cyan-400 hover:text-cyan-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 rounded"
+                >
+                  <RotateCcw size={14} />
+                  Clear filters
+                </button>
+              )}
+            </div>
+
+            {/* ERROR */}
+            {error && (
+              <div className="flex items-center gap-2 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                <AlertCircle size={16} className="shrink-0" />
+                {error}
+              </div>
+            )}
+
+            {/* CONTENT */}
+            {loading && messages.length === 0 ? (
+              <LoadingState />
+            ) : messages.length === 0 ? (
+              <EmptyState />
+            ) : (
+              <>
+                {/* Desktop / tablet table */}
+                <div className="hidden overflow-hidden rounded-2xl border border-white/5 bg-[#111822] shadow-lg md:block">
+                  <table className="w-full text-left text-sm">
+                    <thead>
+                      <tr className="border-b border-white/5 text-xs font-medium text-gray-400">
+                        <th className="px-5 py-3">Time</th>
+                        <th className="px-5 py-3">Vehicle</th>
+                        <th className="px-5 py-3">Source</th>
+                        <th className="px-5 py-3">Destination</th>
+                        <th className="px-5 py-3">Contact</th>
+                        <th className="px-5 py-3">Message</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {messages.map((m) => (
+                        <tr
+                          key={m.id}
+                          className="border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition"
+                        >
+                          <td className="whitespace-nowrap px-5 py-3.5 text-gray-400">
+                            {formatTimestamp(m.messageTimestamp)}
+                          </td>
+                          <td className="px-5 py-3.5 text-white">
+                            {m.vehicle || "—"}
+                          </td>
+                          <td className="px-5 py-3.5 text-white">
+                            {m.source || "—"}
+                          </td>
+                          <td className="px-5 py-3.5 text-white">
+                            {m.destination || "—"}
+                          </td>
+                          <td className="px-5 py-3.5 text-gray-300">
+                            {m.contactNumber || "—"}
+                          </td>
+                          <td className="max-w-sm px-5 py-3.5 text-gray-300">
+                            <span className="line-clamp-2">
+                              {m.messageText}
+                            </span>
+                            {m.structuredParseFailed && <UnparsedBadge />}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Mobile cards */}
+                <div className="space-y-3 md:hidden">
+                  {messages.map((m) => (
+                    <div
+                      key={m.id}
+                      className="rounded-2xl border border-white/5 bg-[#111822] p-4 shadow-lg"
+                    >
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-gray-400">
+                          {formatTimestamp(m.messageTimestamp)}
+                        </span>
+                        {m.structuredParseFailed && <UnparsedBadge />}
+                      </div>
+
+                      <div className="mt-2 flex items-center gap-2 text-white">
+                        <Truck size={16} className="text-cyan-400" />
+                        <span className="font-medium">
+                          {m.vehicle || "Vehicle unknown"}
+                        </span>
+                      </div>
+
+                      <div className="mt-1 flex items-center gap-2 text-sm text-gray-300">
+                        <MapPin size={14} className="text-gray-500" />
+                        <span>{m.source || "—"}</span>
+                        <span className="text-gray-600">→</span>
+                        <span>{m.destination || "—"}</span>
+                      </div>
+
+                      {m.contactNumber && (
+                        <div className="mt-1 flex items-center gap-2 text-sm text-gray-300">
+                          <Phone size={14} className="text-gray-500" />
+                          {m.contactNumber}
+                        </div>
+                      )}
+
+                      <p className="mt-2 text-sm text-gray-400">
+                        {m.messageText}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* PAGINATION */}
+                <div className="flex items-center justify-center gap-4 pt-1">
+                  <button
+                    type="button"
+                    disabled={pagination.page <= 1 || loading}
+                    onClick={() => setPage((p) => Math.max(p - 1, 1))}
+                    className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-2 text-sm text-gray-300 transition hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                  >
+                    <ChevronLeft size={16} />
+                    Prev
+                  </button>
+
+                  <span className="text-sm text-gray-400">
+                    Page {pagination.page} of {pagination.totalPages}
+                  </span>
+
+                  <button
+                    type="button"
+                    disabled={
+                      pagination.page >= pagination.totalPages || loading
+                    }
+                    onClick={() => setPage((p) => p + 1)}
+                    className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-2 text-sm text-gray-300 transition hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
+                  >
+                    Next
+                    <ChevronRight size={16} />
+                  </button>
+                </div>
+              </>
+            )}
           </div>
-
-          {/* PAGINATION */}
-          <div className="flex items-center justify-center gap-4 pt-1">
-            <button
-              type="button"
-              disabled={pagination.page <= 1 || loading}
-              onClick={() => setPage((p) => Math.max(p - 1, 1))}
-              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-2 text-sm text-gray-300 transition hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
-            >
-              <ChevronLeft size={16} />
-              Prev
-            </button>
-
-            <span className="text-sm text-gray-400">
-              Page {pagination.page} of {pagination.totalPages}
-            </span>
-
-            <button
-              type="button"
-              disabled={pagination.page >= pagination.totalPages || loading}
-              onClick={() => setPage((p) => p + 1)}
-              className="inline-flex items-center gap-1 rounded-lg border border-white/10 px-3 py-2 text-sm text-gray-300 transition hover:bg-white/5 hover:text-white disabled:cursor-not-allowed disabled:opacity-40 focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
-            >
-              Next
-              <ChevronRight size={16} />
-            </button>
-          </div>
-        </>
-      )}
+        </main>
+      </div>
     </div>
   );
 }
 
 // =====================================================
-// SMALL PIECES
+// HELPER COMPONENTS
 // =====================================================
 
 function StatChip({ label, value, tone = "default" }) {

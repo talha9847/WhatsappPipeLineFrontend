@@ -10,10 +10,9 @@ import {
 } from "lucide-react";
 
 const NAV_ITEMS = [
-  { to: "/dashboard", label: "Overview", icon: LayoutDashboard, end: true },
-  { to: "/dashboard/messages", label: "Messages", icon: MessageSquare },
-  { to: "/dashboard/groups", label: "Groups", icon: Users },
-  { to: "/dashboard/settings", label: "Settings", icon: Settings },
+  //   { to: "/dashboard", label: "Overview", icon: LayoutDashboard, end: true },
+  { to: "/", label: "Messages", icon: MessageSquare },
+  ,
 ];
 
 function NavItem({ to, label, icon: Icon, end, onNavigate }) {
