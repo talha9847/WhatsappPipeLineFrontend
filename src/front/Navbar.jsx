@@ -51,13 +51,13 @@ export default function Navbar() {
         {/* Action Buttons */}
         <div className="hidden items-center gap-4 md:flex">
           <Link
-            to="/login"
+            to="/messages"
             className="text-sm font-semibold text-gray-300 transition hover:text-white"
           >
             Sign In
           </Link>
           <Link
-            to="/register"
+            to="/messages"
             className="inline-flex items-center gap-2 rounded-xl bg-cyan-400 px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-black transition hover:bg-cyan-300 shadow-[0_0_15px_rgba(34,211,238,0.3)]"
           >
             Get Started
