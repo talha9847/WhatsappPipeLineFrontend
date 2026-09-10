@@ -318,15 +318,17 @@ export default function MessagesPage() {
             ) : (
               <>
                 {/* Desktop / tablet table */}
-                <div className="hidden overflow-hidden rounded-2xl border border-white/5 bg-[#111822] shadow-lg md:block">
+                <div className="hidden overflow-x-auto rounded-2xl border border-white/5 bg-[#111822] shadow-lg md:block">
                   <table className="w-full text-left text-sm">
                     <thead>
                       <tr className="border-b border-white/5 text-xs font-medium text-gray-400">
-                        <th className="px-5 py-3">Time</th>
-                        <th className="px-5 py-3">Vehicle</th>
-                        <th className="px-5 py-3">Source</th>
-                        <th className="px-5 py-3">Destination</th>
-                        <th className="px-5 py-3">Contact</th>
+                        <th className="px-5 py-3 whitespace-nowrap">Time</th>
+                        <th className="px-5 py-3 whitespace-nowrap">Vehicle</th>
+                        <th className="px-5 py-3 whitespace-nowrap">Source</th>
+                        <th className="px-5 py-3 whitespace-nowrap">
+                          Destination
+                        </th>
+                        <th className="px-5 py-3 whitespace-nowrap">Contact</th>
                         <th className="px-5 py-3">Message</th>
                       </tr>
                     </thead>
@@ -334,27 +336,25 @@ export default function MessagesPage() {
                       {messages.map((m) => (
                         <tr
                           key={m.id}
-                          className="border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition"
+                          className="border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition align-top"
                         >
                           <td className="whitespace-nowrap px-5 py-3.5 text-gray-400">
                             {formatTimestamp(m.messageTimestamp)}
                           </td>
-                          <td className="px-5 py-3.5 text-white">
+                          <td className="px-5 py-3.5 text-white break-words">
                             {m.vehicle || "—"}
                           </td>
-                          <td className="px-5 py-3.5 text-white">
+                          <td className="px-5 py-3.5 text-white break-words">
                             {m.source || "—"}
                           </td>
-                          <td className="px-5 py-3.5 text-white">
+                          <td className="px-5 py-3.5 text-white break-words">
                             {m.destination || "—"}
                           </td>
-                          <td className="px-5 py-3.5 text-gray-300">
+                          <td className="px-5 py-3.5 text-gray-300 whitespace-nowrap">
                             {m.contactNumber || "—"}
                           </td>
-                          <td className="max-w-sm px-5 py-3.5 text-gray-300">
-                            <span className="line-clamp-2">
-                              {m.messageText}
-                            </span>
+                          <td className="min-w-[250px] max-w-md px-5 py-3.5 text-gray-300 break-words leading-relaxed">
+                            <span>{m.messageText}</span>
                             {m.structuredParseFailed && <UnparsedBadge />}
                           </td>
                         </tr>
@@ -378,27 +378,36 @@ export default function MessagesPage() {
                       </div>
 
                       <div className="mt-2 flex items-center gap-2 text-white">
-                        <Truck size={16} className="text-cyan-400" />
-                        <span className="font-medium">
+                        <Truck size={16} className="text-cyan-400 shrink-0" />
+                        <span className="font-medium break-words">
                           {m.vehicle || "Vehicle unknown"}
                         </span>
                       </div>
 
-                      <div className="mt-1 flex items-center gap-2 text-sm text-gray-300">
-                        <MapPin size={14} className="text-gray-500" />
-                        <span>{m.source || "—"}</span>
-                        <span className="text-gray-600">→</span>
-                        <span>{m.destination || "—"}</span>
+                      <div className="mt-1 flex items-start gap-2 text-sm text-gray-300">
+                        <MapPin
+                          size={14}
+                          className="text-gray-500 shrink-0 mt-1"
+                        />
+                        <span className="break-words">
+                          <span className="text-white font-medium">
+                            {m.source || "—"}
+                          </span>
+                          <span className="mx-1.5 text-gray-500">→</span>
+                          <span className="text-white font-medium">
+                            {m.destination || "—"}
+                          </span>
+                        </span>
                       </div>
 
                       {m.contactNumber && (
                         <div className="mt-1 flex items-center gap-2 text-sm text-gray-300">
-                          <Phone size={14} className="text-gray-500" />
-                          {m.contactNumber}
+                          <Phone size={14} className="text-gray-500 shrink-0" />
+                          <span className="break-all">{m.contactNumber}</span>
                         </div>
                       )}
 
-                      <p className="mt-2 text-sm text-gray-400">
+                      <p className="mt-3 border-t border-white/5 pt-2.5 text-sm text-gray-300 break-words whitespace-pre-wrap leading-relaxed">
                         {m.messageText}
                       </p>
                     </div>
