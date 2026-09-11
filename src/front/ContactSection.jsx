@@ -4,7 +4,7 @@ import { Mail, Phone, MapPin, ExternalLink } from "lucide-react";
 export default function ContactSection() {
   // Google Maps embed URL targeting Zakhera, Gujarat 394421
   const mapEmbedUrl =
-    "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14878.148118080927!2d73.040000!3d21.400000!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3be05f5f4b5f5f5f%3A0x0!2sZakhera%2C%20Gujarat%20394421!5e0!3m2!1sen!2sin!4v1700000000000!5m2!1sen!2sin";
+    "https://www.google.com/maps?q=21.4214055,73.1419546&z=17&output=embed";
 
   return (
     <section

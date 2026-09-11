@@ -196,7 +196,7 @@ export default function MessagesPage() {
 
       try {
         const res = await fetch(
-          `${API_BASE_URL}/api/messages?${params.toString()}`,
+          `${API_BASE_URL}/api/message/messages?${params.toString()}`,
           { signal },
         );
 
