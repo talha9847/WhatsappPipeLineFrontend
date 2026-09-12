@@ -13,6 +13,7 @@ function App() {
       <Routes>
         <Route path="/messages" element={<MessagesPage />} />
         <Route path="/trafficlog" element={<DailyTrafficLog />} />
+        {/* <Route path="/logs" element={<TrafficLog />} /> */}
         <Route path="/" element={<LandingPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>

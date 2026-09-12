@@ -441,7 +441,8 @@ export default function MessagesPage() {
                           className="border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition align-top"
                         >
                           {/* Time & Slot */}
-                          <td className="whitespace-nowrap px-5 py-3.5 text-gray-400">
+                          <td className="px-5 py-3.5 text-gray-400 break-words">
+                            {" "}
                             <div>{formatTimestamp(m.messageTimestamp)}</div>
                             {m.availableTime && (
                               <div className="mt-1 flex items-center gap-1 text-xs text-cyan-400">
