@@ -1,5 +1,5 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 import {
   LayoutDashboard,
   MessageSquare,
@@ -70,10 +70,10 @@ export default function Sidebar({ open, onClose }) {
         ].join(" ")}
       >
         <div className="flex items-center justify-between px-5 py-5 border-b border-white/5">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <Car className="text-cyan-400" size={24} />
             <span className="text-lg font-semibold text-white">SmartRide</span>
-          </div>
+          </Link>
 
           <button
             type="button"

@@ -9,7 +9,7 @@ export default function OAuthAuth() {
   const handleGoogleAuth = () => {
     setIsLoading(true);
     // Directs browser to your Express backend OAuth route
-    window.location.href = `${import.meta.env.VITE_API_BASE_URL || ""}/api/auth/google`;
+    window.location.href = "/api/auth/google";
   };
 
   return (

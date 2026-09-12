@@ -51,7 +51,7 @@ export default function Navbar() {
         {/* Action Buttons */}
         <div className="hidden items-center gap-4 md:flex">
           <Link
-            to="/messages"
+            to="/signin"
             className="text-sm font-semibold text-gray-300 transition hover:text-white"
           >
             Sign In

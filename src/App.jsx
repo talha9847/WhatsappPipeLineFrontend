@@ -17,7 +17,7 @@ function App() {
         <Route path="/trafficlog" element={<DailyTrafficLog />} />
         <Route path="/signin" element={<OAuthAuth />} />
         <Route path="/callback" element={<AuthCallback />} />
-        {/* <Route path="/logs" element={<TrafficLog />} /> */}
+        <Route path="/logs" element={<TrafficLog />} />
         <Route path="/" element={<LandingPage />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
