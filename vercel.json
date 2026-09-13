@@ -1,8 +1,8 @@
 {
   "rewrites": [
     {
-      "source": "https://whatsapppipeline.onrender.com/api/:path*",
-      "destination": "/api/:path*"
+      "source": "/api/:path*",
+      "destination": "https://whatsapppipeline.onrender.com/api/:path*"
     },
     {
       "source": "/:path*",
