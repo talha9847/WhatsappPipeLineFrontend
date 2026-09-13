@@ -110,7 +110,7 @@ export default function Navbar() {
             <hr className="border-white/10" />
             <div className="flex flex-col gap-3 pt-2">
               <Link
-                to="/messages"
+                to="/signin"
                 onClick={toggleMenu}
                 className="text-center text-sm font-semibold text-gray-300"
               >

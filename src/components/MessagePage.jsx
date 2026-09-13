@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Search,
   MapPin,
@@ -11,15 +12,16 @@ import {
   RotateCcw,
   Inbox,
   AlertCircle,
-  Car,
   Clock,
   Filter,
   Tag,
   CheckCircle2,
-  HelpCircle,
-  Menu,
+  Plus,
+  X,
+  LogIn,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
+import Navbar from "./Navbar";
 
 // =====================================================
 // CONFIG & CONSTANTS
@@ -128,7 +130,15 @@ function FieldSelect({ icon: Icon, value, onChange, options }) {
 // =====================================================
 
 export default function MessagesPage() {
+  const navigate = useNavigate();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+
+  // User Authentication State (Replace with your Auth context or state management)
+  const [user, setUser] = useState({ name: "John Doe" }); // Set to null to simulate logged-out state
+
+  // Modal & Redirection State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [redirectCountdown, setRedirectCountdown] = useState(null);
 
   // Filter States
   const [q, setQ] = useState("");
@@ -156,6 +166,39 @@ export default function MessagesPage() {
     () => SORT_OPTIONS.find((o) => o.value === sortValue) || SORT_OPTIONS[0],
     [sortValue],
   );
+
+  // Handle post button click
+  const handleOpenPostModal = () => {
+    setIsModalOpen(true);
+    if (!user) {
+      setRedirectCountdown(3);
+    }
+  };
+
+  // Timer logic for redirection when unauthenticated
+  useEffect(() => {
+    let timer;
+    if (isModalOpen && !user && redirectCountdown !== null) {
+      if (redirectCountdown > 0) {
+        timer = setTimeout(() => {
+          setRedirectCountdown((prev) => prev - 1);
+        }, 1000);
+      } else if (redirectCountdown === 0) {
+        setIsModalOpen(false);
+        navigate("/signin");
+      }
+    }
+    return () => clearTimeout(timer);
+  }, [isModalOpen, user, redirectCountdown, navigate]);
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setRedirectCountdown(null);
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+  };
 
   // Reset to page 1 on any filter change
   useEffect(() => {
@@ -195,10 +238,9 @@ export default function MessagesPage() {
       params.set("limit", String(limit));
 
       try {
-        const res = await fetch(
-          `/api/message/messages?${params.toString()}`,
-          { signal },
-        );
+        const res = await fetch(`/api/message/messages?${params.toString()}`, {
+          signal,
+        });
 
         if (!res.ok) throw new Error(`Request failed (${res.status})`);
 
@@ -279,21 +321,12 @@ export default function MessagesPage() {
 
       {/* MAIN WRAPPER */}
       <div className="flex flex-1 flex-col min-w-0">
-        {/* MOBILE TOPBAR */}
-        <header className="flex items-center justify-between border-b border-white/5 bg-[#0B0F14] px-4 py-3 md:hidden">
-          <div className="flex items-center gap-2">
-            <Car className="text-cyan-400" size={22} />
-            <span className="font-semibold text-white">SmartRide</span>
-          </div>
-          <button
-            type="button"
-            onClick={() => setSidebarOpen(true)}
-            aria-label="Open sidebar menu"
-            className="rounded-lg p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400"
-          >
-            <Menu size={22} />
-          </button>
-        </header>
+        {/* NAVBAR COMPONENT */}
+        <Navbar
+          onOpenSidebar={() => setSidebarOpen(true)}
+          user={user}
+          onLogout={handleLogout}
+        />
 
         {/* CONTENT AREA */}
         <main className="flex-1 p-4 md:p-8">
@@ -442,7 +475,6 @@ export default function MessagesPage() {
                         >
                           {/* Time & Slot */}
                           <td className="px-5 py-3.5 text-gray-400 break-words">
-                            {" "}
                             <div>{formatTimestamp(m.messageTimestamp)}</div>
                             {m.availableTime && (
                               <div className="mt-1 flex items-center gap-1 text-xs text-cyan-400">
@@ -599,6 +631,94 @@ export default function MessagesPage() {
           </div>
         </main>
       </div>
+
+      {/* FLOATING ACTION BUTTON (BOTTOM RIGHT) */}
+      <button
+        type="button"
+        onClick={handleOpenPostModal}
+        aria-label="Create Post"
+        className="fixed bottom-6 right-6 z-40 flex h-14 w-14 items-center justify-center rounded-full bg-cyan-500 text-white shadow-lg shadow-cyan-500/30 transition-transform duration-200 hover:scale-105 hover:bg-cyan-400 focus:outline-none focus-visible:ring-4 focus-visible:ring-cyan-400/50"
+      >
+        <Plus size={28} />
+      </button>
+
+      {/* POST MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#111822] p-6 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <h3 className="text-lg font-semibold text-white">
+                {user ? "Create New Post" : "Authentication Required"}
+              </h3>
+              <button
+                type="button"
+                onClick={handleCloseModal}
+                className="rounded-lg p-1 text-gray-400 hover:bg-white/5 hover:text-white"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="py-6">
+              {user ? (
+                /* Authenticated State - Form Content */
+                <form
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setIsModalOpen(false);
+                  }}
+                  className="space-y-4"
+                >
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-gray-300">
+                      Post Details
+                    </label>
+                    <textarea
+                      rows={4}
+                      className="w-full rounded-xl bg-[#1A2330] p-3 text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-cyan-400"
+                      placeholder="Enter vehicle availability or requirements..."
+                      required
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full rounded-xl bg-cyan-500 py-3 text-sm font-semibold text-white transition hover:bg-cyan-400"
+                  >
+                    Publish Post
+                  </button>
+                </form>
+              ) : (
+                /* Unauthenticated State - Redirect Warning */
+                <div className="space-y-4 text-center">
+                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10 text-amber-400">
+                    <LogIn size={24} />
+                  </div>
+                  <p className="text-sm text-gray-300">
+                    You must be logged in to create a post.
+                  </p>
+                  <p className="text-xs text-amber-400">
+                    Redirecting to Sign In page in{" "}
+                    <span className="font-bold text-white">
+                      {redirectCountdown}
+                    </span>{" "}
+                    seconds...
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      navigate("/signin");
+                    }}
+                    className="mt-2 w-full rounded-xl bg-cyan-500 py-2.5 text-sm font-semibold text-white transition hover:bg-cyan-400"
+                  >
+                    Go to Sign In Now
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

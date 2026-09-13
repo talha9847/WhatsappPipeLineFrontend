@@ -39,18 +39,18 @@ export default function HomeSection() {
 
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <Link
-              to="/messages"
+              to="/signin"
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-400 px-6 py-3.5 text-sm font-bold text-black transition hover:bg-cyan-300 sm:w-auto shadow-[0_0_25px_rgba(34,211,238,0.25)]"
             >
               Join the Community
               <ChevronRight size={18} />
             </Link>
-            <a
-              href="#about"
+            <Link
+              to="/messages"
               className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#111822] px-6 py-3.5 text-sm font-semibold text-gray-300 transition hover:bg-white/5 hover:text-white sm:w-auto"
             >
               Learn More
-            </a>
+            </Link>
           </div>
         </div>
       </section>
