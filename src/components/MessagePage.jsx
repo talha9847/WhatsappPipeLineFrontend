@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
+import { useAuth } from "../context/authContext";
 
 // =====================================================
 // CONFIG & CONSTANTS
@@ -131,10 +132,10 @@ function FieldSelect({ icon: Icon, value, onChange, options }) {
 
 export default function MessagesPage() {
   const navigate = useNavigate();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  // User Authentication State (Replace with your Auth context or state management)
-  const [user, setUser] = useState({ name: "John Doe" }); // Set to null to simulate logged-out state
+  const { user: authUser, loading: authLoading } = useAuth();
+
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // Modal & Redirection State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -170,7 +171,7 @@ export default function MessagesPage() {
   // Handle post button click
   const handleOpenPostModal = () => {
     setIsModalOpen(true);
-    if (!user) {
+    if (!authUser) {
       setRedirectCountdown(3);
     }
   };
@@ -178,7 +179,7 @@ export default function MessagesPage() {
   // Timer logic for redirection when unauthenticated
   useEffect(() => {
     let timer;
-    if (isModalOpen && !user && redirectCountdown !== null) {
+    if (isModalOpen && !authUser && redirectCountdown !== null) {
       if (redirectCountdown > 0) {
         timer = setTimeout(() => {
           setRedirectCountdown((prev) => prev - 1);
@@ -189,7 +190,7 @@ export default function MessagesPage() {
       }
     }
     return () => clearTimeout(timer);
-  }, [isModalOpen, user, redirectCountdown, navigate]);
+  }, [isModalOpen, authUser, redirectCountdown, navigate]);
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
@@ -322,11 +323,13 @@ export default function MessagesPage() {
       {/* MAIN WRAPPER */}
       <div className="flex flex-1 flex-col min-w-0">
         {/* NAVBAR COMPONENT */}
-        <Navbar
-          onOpenSidebar={() => setSidebarOpen(true)}
-          user={user}
-          onLogout={handleLogout}
-        />
+        {!loading && authUser && (
+          <Navbar
+            onOpenSidebar={() => setSidebarOpen(true)}
+            user={authUser}
+            onLogout={handleLogout}
+          />
+        )}
 
         {/* CONTENT AREA */}
         <main className="flex-1 p-4 md:p-8">
@@ -648,7 +651,7 @@ export default function MessagesPage() {
           <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#111822] p-6 shadow-2xl">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
               <h3 className="text-lg font-semibold text-white">
-                {user ? "Create New Post" : "Authentication Required"}
+                {authUser ? "Create New Post" : "Authentication Required"}
               </h3>
               <button
                 type="button"
@@ -660,7 +663,7 @@ export default function MessagesPage() {
             </div>
 
             <div className="py-6">
-              {user ? (
+              {authUser ? (
                 /* Authenticated State - Form Content */
                 <form
                   onSubmit={(e) => {

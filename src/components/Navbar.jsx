@@ -29,7 +29,12 @@ export default function Navbar({ onOpenSidebar, user, onLogout }) {
               <div className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-400">
                 <User size={16} />
               </div>
-              <span className="hidden font-medium sm:inline">
+              <span
+                onClick={() => {
+                  console.log(user);
+                }}
+                className="hidden font-medium sm:inline"
+              >
                 {user.name || "User"}
               </span>
             </div>
