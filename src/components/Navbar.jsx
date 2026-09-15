@@ -26,8 +26,12 @@ export default function Navbar({ onOpenSidebar, user, onLogout }) {
         {user ? (
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-2 rounded-xl border border-white/10 bg-[#111822] px-3 py-1.5 text-sm text-gray-200">
-              <div className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500/20 text-cyan-400">
-                <User size={16} />
+              <div className="h-8 w-8 overflow-hidden rounded-full border-2 border-cyan-400/30">
+                <img
+                  src={user.profile}
+                  alt="Profile"
+                  className="h-full w-full object-cover"
+                />
               </div>
               <span
                 onClick={() => {

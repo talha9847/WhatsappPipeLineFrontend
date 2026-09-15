@@ -19,6 +19,11 @@ import {
   Plus,
   X,
   LogIn,
+  MoreHorizontal,
+  Heart,
+  Share,
+  Repeat2,
+  MessageCircle,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
@@ -454,151 +459,560 @@ export default function MessagesPage() {
             ) : (
               <>
                 {/* Desktop / Tablet Table View */}
-                <div className="hidden overflow-x-auto rounded-2xl border border-white/5 bg-[#111822] shadow-lg md:block">
-                  <table className="w-full text-left text-sm">
-                    <thead>
-                      <tr className="border-b border-white/5 text-xs font-medium text-gray-400">
-                        <th className="px-5 py-3 whitespace-nowrap">
-                          Time / Slot
-                        </th>
-                        <th className="px-5 py-3 whitespace-nowrap">
-                          Type & Status
-                        </th>
-                        <th className="px-5 py-3 whitespace-nowrap">Vehicle</th>
-                        <th className="px-5 py-3 whitespace-nowrap">Route</th>
-                        <th className="px-5 py-3 whitespace-nowrap">Contact</th>
-                        <th className="px-5 py-3">Message</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {messages.map((m) => (
-                        <tr
-                          key={m.id}
-                          className="border-b border-white/5 last:border-0 hover:bg-white/[0.03] transition align-top"
-                        >
-                          {/* Time & Slot */}
-                          <td className="px-5 py-3.5 text-gray-400 break-words">
-                            <div>{formatTimestamp(m.messageTimestamp)}</div>
-                            {m.availableTime && (
-                              <div className="mt-1 flex items-center gap-1 text-xs text-cyan-400">
-                                <Clock size={12} />
-                                <span>{m.availableTime}</span>
-                              </div>
-                            )}
-                          </td>
+                {/* =========================================================
+    DESKTOP / TABLET FEED
+========================================================= */}
+                <div className="hidden md:block">
+                  <div className="mx-auto w-full max-w-7xl overflow-hidden rounded-2xl border border-slate-800/80 bg-[#05070a] shadow-2xl shadow-black/20">
+                    {/* Feed Header */}
+                    <div className="border-b border-slate-800/80 bg-[#070a0f]/95 px-6 py-4 backdrop-blur-xl">
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h2 className="text-base font-bold text-white">
+                              Message Feed
+                            </h2>
 
-                          {/* Type & Status Badges */}
-                          <td className="px-5 py-3.5 whitespace-nowrap space-y-1">
-                            <div>
-                              <MessageTypeBadge type={m.messageType} />
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <RequirementBadge type={m.requirementType} />
-                              <VehicleStatusBadge status={m.vehicleStatus} />
-                            </div>
-                          </td>
-
-                          {/* Vehicle */}
-                          <td className="px-5 py-3.5 text-white break-words">
-                            {m.vehicle || "—"}
-                          </td>
-
-                          {/* Route */}
-                          <td className="px-5 py-3.5 text-white break-words">
-                            <div className="font-medium text-white">
-                              {m.source || "—"}
-                            </div>
-                            <div className="text-xs text-gray-400 flex items-center gap-1">
-                              <span>↓</span>
-                              <span>{m.destination || "—"}</span>
-                            </div>
-                          </td>
-
-                          {/* Contact */}
-                          <td className="px-5 py-3.5 text-gray-300 whitespace-nowrap">
-                            {m.contactNumber || "—"}
-                          </td>
-
-                          {/* Message Text */}
-                          <td className="min-w-[250px] max-w-md px-5 py-3.5 text-gray-300 break-words leading-relaxed">
-                            <span>{m.messageText}</span>
-                            {m.structuredParseFailed && <UnparsedBadge />}
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
-
-                {/* Mobile Cards View */}
-                <div className="space-y-3 md:hidden">
-                  {messages.map((m) => (
-                    <div
-                      key={m.id}
-                      className="rounded-2xl border border-white/5 bg-[#111822] p-4 shadow-lg space-y-3"
-                    >
-                      {/* Top Header Row */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-xs text-gray-400">
-                          {formatTimestamp(m.messageTimestamp)}
-                        </span>
-                        {m.structuredParseFailed && <UnparsedBadge />}
-                      </div>
-
-                      {/* Classification Badges */}
-                      <div className="flex flex-wrap gap-1.5">
-                        <MessageTypeBadge type={m.messageType} />
-                        <RequirementBadge type={m.requirementType} />
-                        <VehicleStatusBadge status={m.vehicleStatus} />
-                      </div>
-
-                      {/* Vehicle & Slot */}
-                      <div className="flex items-center justify-between text-white">
-                        <div className="flex items-center gap-2">
-                          <Truck size={16} className="text-cyan-400 shrink-0" />
-                          <span className="font-medium break-words">
-                            {m.vehicle || "Vehicle unknown"}
-                          </span>
-                        </div>
-                        {m.availableTime && (
-                          <div className="flex items-center gap-1 text-xs text-cyan-400 bg-cyan-500/10 border border-cyan-500/20 px-2 py-0.5 rounded-md">
-                            <Clock size={12} />
-                            <span>{m.availableTime}</span>
+                            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-sm shadow-emerald-400/50" />
                           </div>
-                        )}
-                      </div>
 
-                      {/* Route */}
-                      <div className="flex items-start gap-2 text-sm text-gray-300">
-                        <MapPin
-                          size={14}
-                          className="text-gray-500 shrink-0 mt-1"
-                        />
-                        <span className="break-words">
-                          <span className="text-white font-medium">
-                            {m.source || "—"}
-                          </span>
-                          <span className="mx-1.5 text-gray-500">→</span>
-                          <span className="text-white font-medium">
-                            {m.destination || "—"}
-                          </span>
-                        </span>
-                      </div>
-
-                      {/* Contact */}
-                      {m.contactNumber && (
-                        <div className="flex items-center gap-2 text-sm text-gray-300">
-                          <Phone size={14} className="text-gray-500 shrink-0" />
-                          <span className="break-all">{m.contactNumber}</span>
+                          <p className="mt-1 text-xs text-slate-500">
+                            Latest transport requests and updates
+                          </p>
                         </div>
-                      )}
 
-                      {/* Raw/Parsed Text */}
-                      <p className="border-t border-white/5 pt-2.5 text-sm text-gray-300 break-words whitespace-pre-wrap leading-relaxed">
-                        {m.messageText}
-                      </p>
+                        <div className="shrink-0 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-400">
+                          {messages.length}{" "}
+                          {messages.length === 1 ? "post" : "posts"}
+                        </div>
+                      </div>
                     </div>
-                  ))}
+
+                    {/* Feed */}
+                    <div>
+                      {messages.map((m, index) => {
+                        const isLast = index === messages.length - 1;
+
+                        return (
+                          <article
+                            key={m.id}
+                            className="group border-b border-slate-800/80 last:border-b-0 transition-colors duration-200 hover:bg-white/[0.012]"
+                          >
+                            <div className="flex gap-4 px-6 py-6">
+                              {/* =================================================
+                  AVATAR + THREAD LINE
+              ================================================= */}
+                              <div className="flex w-11 shrink-0 flex-col items-center">
+                                <div className="relative z-10 h-11 w-11 overflow-hidden rounded-full border border-slate-700 bg-slate-900 ring-4 ring-[#05070a] transition-all duration-200 group-hover:border-cyan-500/40">
+                                  <img
+                                    src={
+                                      m.avatar ||
+                                      "https://i.pravatar.cc/100?img=12"
+                                    }
+                                    alt="Admin"
+                                    className="h-full w-full object-cover"
+                                  />
+                                </div>
+
+                                {!isLast && (
+                                  <div className="mt-3 w-px flex-1 bg-slate-800 transition-colors duration-200 group-hover:bg-slate-700" />
+                                )}
+                              </div>
+
+                              {/* =================================================
+                  POST CONTENT
+              ================================================= */}
+                              <div className="min-w-0 flex-1">
+                                {/* Author */}
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="min-w-0">
+                                    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
+                                      <span className="font-bold text-white">
+                                        Admin
+                                      </span>
+
+                                      <span className="text-slate-500">
+                                        @admin
+                                      </span>
+
+                                      <span className="text-slate-700">·</span>
+
+                                      <time
+                                        className="text-slate-500"
+                                        title={
+                                          formatTimestamp
+                                            ? formatTimestamp(
+                                                m.messageTimestamp,
+                                              )
+                                            : undefined
+                                        }
+                                      >
+                                        {formatTimestamp
+                                          ? formatTimestamp(m.messageTimestamp)
+                                          : "1h"}
+                                      </time>
+                                    </div>
+                                  </div>
+
+                                  <button
+                                    type="button"
+                                    aria-label="More options"
+                                    className="shrink-0 rounded-full p-2 text-slate-600 transition hover:bg-cyan-500/10 hover:text-cyan-400"
+                                  >
+                                    <MoreHorizontal size={18} />
+                                  </button>
+                                </div>
+
+                                {/* =================================================
+                    MESSAGE
+                ================================================= */}
+                                <div className="mt-2 max-w-5xl whitespace-pre-line break-words text-[15px] leading-6 text-slate-200">
+                                  {m.messageText || "No message available."}
+                                </div>
+
+                                {/* =================================================
+                    BADGES
+                ================================================= */}
+                                <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                                  <MessageTypeBadge type={m.messageType} />
+                                  <RequirementBadge type={m.requirementType} />
+                                  <VehicleStatusBadge
+                                    status={m.vehicleStatus}
+                                  />
+
+                                  {m.structuredParseFailed && <UnparsedBadge />}
+                                </div>
+
+                                {/* =================================================
+                    TRANSPORT DETAILS
+                ================================================= */}
+                                <div className="mt-5 overflow-hidden rounded-2xl border border-slate-800/90 bg-[#0a0f16] shadow-lg shadow-black/10 transition-colors duration-200 group-hover:border-slate-700">
+                                  {/* Details Header */}
+                                  <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/80 px-5 py-3.5">
+                                    <div className="flex items-center gap-2.5">
+                                      <div className="flex h-8 w-8 items-center justify-center rounded-lg border border-cyan-500/10 bg-cyan-500/10 text-cyan-400">
+                                        <Truck size={15} />
+                                      </div>
+
+                                      <div>
+                                        <div className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                                          Transport Details
+                                        </div>
+
+                                        <div className="mt-0.5 text-[10px] text-slate-600">
+                                          Parsed request information
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    {m.availableTime && (
+                                      <div className="flex items-center gap-1.5 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1.5 text-xs font-semibold text-cyan-400">
+                                        <Clock size={12} />
+                                        <span>{m.availableTime}</span>
+                                      </div>
+                                    )}
+                                  </div>
+
+                                  {/* Details Body */}
+                                  <div className="grid grid-cols-1 lg:grid-cols-3">
+                                    {/* Vehicle */}
+                                    <div className="border-b border-slate-800/70 p-5 lg:border-b-0 lg:border-r">
+                                      <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600">
+                                        <Truck size={11} />
+                                        Vehicle
+                                      </div>
+
+                                      <div className="break-words text-sm font-semibold leading-5 text-slate-100">
+                                        {m.vehicle || "Vehicle unknown"}
+                                      </div>
+                                    </div>
+
+                                    {/* Route */}
+                                    <div className="border-b border-slate-800/70 p-5 lg:border-b-0 lg:border-r">
+                                      <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600">
+                                        <MapPin size={11} />
+                                        Route
+                                      </div>
+
+                                      <div className="flex flex-wrap items-center gap-2 text-sm">
+                                        <span className="break-words font-semibold text-white">
+                                          {m.source || "—"}
+                                        </span>
+
+                                        <span className="shrink-0 text-cyan-500">
+                                          →
+                                        </span>
+
+                                        <span className="break-words font-semibold text-white">
+                                          {m.destination || "—"}
+                                        </span>
+                                      </div>
+                                    </div>
+
+                                    {/* Contact */}
+                                    <div className="p-5">
+                                      <div className="mb-2 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.15em] text-slate-600">
+                                        <Phone size={11} />
+                                        Contact
+                                      </div>
+
+                                      {m.contactNumber ? (
+                                        <div className="flex flex-wrap gap-2">
+                                          {m.contactNumber
+                                            .split(/[,/]+/)
+                                            .map((num) => num.trim())
+                                            .filter(Boolean)
+                                            .map((num, idx) => {
+                                              const cleanNum = num.replace(
+                                                /[^0-9]/g,
+                                                "",
+                                              );
+
+                                              return (
+                                                <div
+                                                  key={idx}
+                                                  className="flex flex-wrap gap-1.5"
+                                                >
+                                                  <a
+                                                    href={`tel:${num}`}
+                                                    title={`Call ${num}`}
+                                                    className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/70 px-3 py-1.5 text-[11px] font-semibold text-slate-300 transition hover:border-slate-600 hover:bg-slate-700 hover:text-white"
+                                                  >
+                                                    <Phone size={11} />
+                                                    Call
+                                                  </a>
+
+                                                  <a
+                                                    href={`https://wa.me/${cleanNum}`}
+                                                    target="_blank"
+                                                    rel="noopener noreferrer"
+                                                    title={`WhatsApp ${num}`}
+                                                    className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-3 py-1.5 text-[11px] font-semibold text-emerald-400 transition hover:border-emerald-500/30 hover:bg-emerald-500/20"
+                                                  >
+                                                    <MessageCircle size={11} />
+                                                    WhatsApp
+                                                  </a>
+                                                </div>
+                                              );
+                                            })}
+                                        </div>
+                                      ) : (
+                                        <span className="text-sm text-slate-600">
+                                          No contact available
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* =================================================
+                    ENGAGEMENT BAR
+                ================================================= */}
+                                <div className="mt-4 flex max-w-2xl items-center justify-between text-slate-600">
+                                  {/* Reply */}
+                                  <button
+                                    type="button"
+                                    className="group/action flex items-center gap-1.5 transition hover:text-cyan-400"
+                                  >
+                                    <span className="rounded-full p-2 transition group-hover/action:bg-cyan-500/10">
+                                      <MessageCircle size={17} />
+                                    </span>
+
+                                    <span className="text-xs">
+                                      {m.replyCount || 0}
+                                    </span>
+                                  </button>
+
+                                  {/* Repost */}
+                                  <button
+                                    type="button"
+                                    className="group/action flex items-center gap-1.5 transition hover:text-emerald-400"
+                                  >
+                                    <span className="rounded-full p-2 transition group-hover/action:bg-emerald-500/10">
+                                      <Repeat2 size={17} />
+                                    </span>
+
+                                    <span className="text-xs">
+                                      {m.retweetCount || 0}
+                                    </span>
+                                  </button>
+
+                                  {/* Like */}
+                                  <button
+                                    type="button"
+                                    className="group/action flex items-center gap-1.5 transition hover:text-rose-400"
+                                  >
+                                    <span className="rounded-full p-2 transition group-hover/action:bg-rose-500/10">
+                                      <Heart size={17} />
+                                    </span>
+
+                                    <span className="text-xs">
+                                      {m.likeCount || 0}
+                                    </span>
+                                  </button>
+
+                                  {/* Share */}
+                                  <button
+                                    type="button"
+                                    aria-label="Share"
+                                    className="rounded-full p-2 text-slate-600 transition hover:bg-cyan-500/10 hover:text-cyan-400"
+                                  >
+                                    <Share size={17} />
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </article>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+                {/* =========================================================
+    MOBILE FEED
+========================================================= */}
+                <div className="space-y-3 md:hidden">
+                  {/* Mobile Feed Header */}
+                  <div className="rounded-2xl border border-slate-800/80 bg-[#0a0e14] px-4 py-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h2 className="text-sm font-bold text-white">
+                          Message Feed
+                        </h2>
+
+                        <p className="mt-1 text-[11px] text-slate-500">
+                          Latest transport requests
+                        </p>
+                      </div>
+
+                      <div className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-2.5 py-1 text-[11px] font-semibold text-cyan-400">
+                        {messages.length}
+                      </div>
+                    </div>
+                  </div>
+
+                  {messages.map((m, index) => {
+                    const isLast = index === messages.length - 1;
+
+                    return (
+                      <article
+                        key={m.id}
+                        className="relative overflow-hidden rounded-2xl border border-slate-800/80 bg-[#0a0f16] shadow-lg shadow-black/10"
+                      >
+                        <div className="flex gap-3 p-4">
+                          {/* Avatar / Thread */}
+                          <div className="flex w-9 shrink-0 flex-col items-center">
+                            <div className="relative z-10 h-9 w-9 overflow-hidden rounded-full border border-slate-700 bg-slate-900 ring-2 ring-[#0a0f16]">
+                              <img
+                                src={
+                                  m.avatar || "https://i.pravatar.cc/100?img=12"
+                                }
+                                alt="Admin"
+                                className="h-full w-full object-cover"
+                              />
+                            </div>
+
+                            {!isLast && (
+                              <div className="mt-2 w-px flex-1 bg-slate-800" />
+                            )}
+                          </div>
+
+                          {/* Content */}
+                          <div className="min-w-0 flex-1">
+                            {/* Header */}
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[13px]">
+                                  <span className="font-bold text-white">
+                                    Admin
+                                  </span>
+
+                                  <span className="text-slate-500">@admin</span>
+
+                                  <span className="text-slate-700">·</span>
+
+                                  <time className="text-slate-500">
+                                    {formatTimestamp
+                                      ? formatTimestamp(m.messageTimestamp)
+                                      : "1h"}
+                                  </time>
+                                </div>
+                              </div>
+
+                              <button
+                                type="button"
+                                aria-label="More options"
+                                className="shrink-0 rounded-full p-1.5 text-slate-600 transition hover:bg-cyan-500/10 hover:text-cyan-400"
+                              >
+                                <MoreHorizontal size={16} />
+                              </button>
+                            </div>
+
+                            {/* Message */}
+                            <div className="mt-2 whitespace-pre-line break-words text-sm leading-5.5 text-slate-200">
+                              {m.messageText || "No message available."}
+                            </div>
+
+                            {/* Badges */}
+                            <div className="mt-3 flex flex-wrap gap-1.5">
+                              <MessageTypeBadge type={m.messageType} />
+                              <RequirementBadge type={m.requirementType} />
+                              <VehicleStatusBadge type={m.vehicleStatus} />
+
+                              {m.structuredParseFailed && <UnparsedBadge />}
+                            </div>
+
+                            {/* Transport Details */}
+                            <div className="mt-4 overflow-hidden rounded-xl border border-slate-800/80 bg-[#070b11]">
+                              {/* Details Header */}
+                              <div className="flex items-center justify-between gap-2 border-b border-slate-800/70 px-3.5 py-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-cyan-500/10 text-cyan-400">
+                                    <Truck size={13} />
+                                  </div>
+
+                                  <span className="text-[11px] font-bold uppercase tracking-wider text-slate-400">
+                                    Transport Details
+                                  </span>
+                                </div>
+
+                                {m.availableTime && (
+                                  <span className="flex shrink-0 items-center gap-1 rounded-full border border-cyan-500/20 bg-cyan-500/10 px-2 py-1 text-[10px] font-semibold text-cyan-400">
+                                    <Clock size={10} />
+                                    {m.availableTime}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Vehicle */}
+                              <div className="border-b border-slate-800/70 px-3.5 py-3">
+                                <div className="mb-1 text-[9px] font-bold uppercase tracking-[0.15em] text-slate-600">
+                                  Vehicle
+                                </div>
+
+                                <div className="break-words text-sm font-semibold text-slate-100">
+                                  {m.vehicle || "Vehicle unknown"}
+                                </div>
+                              </div>
+
+                              {/* Route */}
+                              <div className="border-b border-slate-800/70 px-3.5 py-3">
+                                <div className="mb-1.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.15em] text-slate-600">
+                                  <MapPin size={10} />
+                                  Route
+                                </div>
+
+                                <div className="flex flex-wrap items-center gap-2 text-sm">
+                                  <span className="break-words font-semibold text-white">
+                                    {m.source || "—"}
+                                  </span>
+
+                                  <span className="text-cyan-500">→</span>
+
+                                  <span className="break-words font-semibold text-white">
+                                    {m.destination || "—"}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Contact */}
+                              <div className="px-3.5 py-3">
+                                <div className="mb-1.5 flex items-center gap-1.5 text-[9px] font-bold uppercase tracking-[0.15em] text-slate-600">
+                                  <Phone size={10} />
+                                  Contact
+                                </div>
+
+                                {m.contactNumber ? (
+                                  <div className="flex flex-wrap gap-1.5">
+                                    {m.contactNumber
+                                      .split(/[,/]+/)
+                                      .map((num) => num.trim())
+                                      .filter(Boolean)
+                                      .map((num, idx) => {
+                                        const cleanNum = num.replace(
+                                          /[^0-9]/g,
+                                          "",
+                                        );
+
+                                        return (
+                                          <div
+                                            key={idx}
+                                            className="flex flex-wrap gap-1.5"
+                                          >
+                                            <a
+                                              href={`tel:${num}`}
+                                              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/70 px-2.5 py-1.5 text-[10px] font-semibold text-slate-300 transition hover:bg-slate-700 hover:text-white"
+                                            >
+                                              <Phone size={10} />
+                                              Call
+                                            </a>
+
+                                            <a
+                                              href={`https://wa.me/${cleanNum}`}
+                                              target="_blank"
+                                              rel="noopener noreferrer"
+                                              className="inline-flex items-center gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/10 px-2.5 py-1.5 text-[10px] font-semibold text-emerald-400 transition hover:bg-emerald-500/20"
+                                            >
+                                              <MessageCircle size={10} />
+                                              WhatsApp
+                                            </a>
+                                          </div>
+                                        );
+                                      })}
+                                  </div>
+                                ) : (
+                                  <span className="text-xs text-slate-600">
+                                    No contact available
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Engagement */}
+                            <div className="mt-3 flex items-center justify-between border-t border-slate-800/70 pt-2">
+                              <button
+                                type="button"
+                                className="flex items-center gap-1.5 rounded-full p-1.5 text-slate-600 transition hover:bg-cyan-500/10 hover:text-cyan-400"
+                              >
+                                <MessageCircle size={15} />
+                                <span className="text-[10px]">
+                                  {m.replyCount || 0}
+                                </span>
+                              </button>
+
+                              <button
+                                type="button"
+                                className="flex items-center gap-1.5 rounded-full p-1.5 text-slate-600 transition hover:bg-emerald-500/10 hover:text-emerald-400"
+                              >
+                                <Repeat2 size={15} />
+                                <span className="text-[10px]">
+                                  {m.retweetCount || 0}
+                                </span>
+                              </button>
+
+                              <button
+                                type="button"
+                                className="flex items-center gap-1.5 rounded-full p-1.5 text-slate-600 transition hover:bg-rose-500/10 hover:text-rose-400"
+                              >
+                                <Heart size={15} />
+                                <span className="text-[10px]">
+                                  {m.likeCount || 0}
+                                </span>
+                              </button>
+
+                              <button
+                                type="button"
+                                aria-label="Share"
+                                className="rounded-full p-1.5 text-slate-600 transition hover:bg-cyan-500/10 hover:text-cyan-400"
+                              >
+                                <Share size={15} />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </article>
+                    );
+                  })}
                 </div>
 
                 {/* PAGINATION */}
