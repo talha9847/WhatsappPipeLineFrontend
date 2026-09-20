@@ -17,6 +17,7 @@ import {
   MessageCircle,
   Hash,
   User,
+  Loader2,
 } from "lucide-react";
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
@@ -810,9 +811,16 @@ export default function PostsPage() {
                   <button
                     type="submit"
                     disabled={creatingPost || !post.trim()}
-                    className="w-full rounded-xl bg-cyan-500 py-3 text-sm font-semibold text-white transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-500 py-3 text-sm font-semibold text-white transition hover:bg-cyan-400 disabled:cursor-not-allowed disabled:opacity-50"
                   >
-                    {creatingPost ? "Publishing..." : "Publish Post"}
+                    {creatingPost ? (
+                      <>
+                        <Loader2 size={17} className="animate-spin" />
+                        Publishing...
+                      </>
+                    ) : (
+                      "Publish Post"
+                    )}
                   </button>
                 </form>
               ) : (
