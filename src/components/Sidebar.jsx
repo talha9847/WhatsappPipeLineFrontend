@@ -7,11 +7,13 @@ import {
   Settings,
   Car,
   X,
+  Notebook,
 } from "lucide-react";
 
 const NAV_ITEMS = [
   //   { to: "/dashboard", label: "Overview", icon: LayoutDashboard, end: true },
   { to: "/messages", label: "Messages", icon: MessageSquare },
+  { to: "/post", label: "Posts", icon: Notebook },
   ,
 ];
 

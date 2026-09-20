@@ -9,11 +9,13 @@ import TrafficLog from "./components/TrafficLog";
 import DailyTrafficLog from "./components/DailyTrafficLog";
 import OAuthAuth from "./components/OAuth";
 import AuthCallback from "./components/AuthCallback";
+import PostsPage from "./components/PostPage";
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/messages" element={<MessagesPage />} />
+        <Route path="/post" element={<PostsPage />} />
         <Route path="/trafficlog" element={<DailyTrafficLog />} />
         <Route path="/signin" element={<OAuthAuth />} />
         <Route path="/callback" element={<AuthCallback />} />
