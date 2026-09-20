@@ -28,6 +28,7 @@ import {
 import Sidebar from "./Sidebar";
 import Navbar from "./Navbar";
 import { useAuth } from "../context/authContext";
+import axios from "axios";
 
 // =====================================================
 // CONFIG & CONSTANTS
@@ -178,6 +179,34 @@ export default function MessagesPage() {
     setIsModalOpen(true);
     if (!authUser) {
       setRedirectCountdown(3);
+    }
+  };
+  const [post, setPost] = useState("");
+
+  const handleSubmit = async () => {
+    if (!post.trim()) {
+      return;
+    }
+
+    try {
+      const response = await axios.post(
+        "/api/post/createPost",
+        {
+          content: post.trim(),
+        },
+        {
+          withCredentials: true,
+        },
+      );
+
+      console.log("Post created:", response.data);
+
+      setPost("");
+    } catch (error) {
+      console.error(
+        "❌ create post error:",
+        error.response?.data?.error || error.message,
+      );
     }
   };
 
@@ -458,10 +487,6 @@ export default function MessagesPage() {
               <EmptyState />
             ) : (
               <>
-                {/* Desktop / Tablet Table View */}
-                {/* =========================================================
-    DESKTOP / TABLET FEED
-========================================================= */}
                 <div className="hidden md:block">
                   <div className="mx-auto w-full max-w-7xl overflow-hidden rounded-2xl border border-slate-800/80 bg-[#05070a] shadow-2xl shadow-black/20">
                     {/* Feed Header */}
@@ -1082,7 +1107,7 @@ export default function MessagesPage() {
                 <form
                   onSubmit={(e) => {
                     e.preventDefault();
-                    setIsModalOpen(false);
+                    handleSubmit();
                   }}
                   className="space-y-4"
                 >
@@ -1092,6 +1117,10 @@ export default function MessagesPage() {
                     </label>
                     <textarea
                       rows={4}
+                      value={post}
+                      onChange={(e) => {
+                        setPost(e.target.value);
+                      }}
                       className="w-full rounded-xl bg-[#1A2330] p-3 text-sm text-white placeholder-gray-500 outline-none focus:ring-2 focus:ring-cyan-400"
                       placeholder="Enter vehicle availability or requirements..."
                       required
