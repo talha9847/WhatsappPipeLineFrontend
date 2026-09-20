@@ -206,6 +206,7 @@ export default function PostsPage() {
       setPost("");
 
       setIsModalOpen(false);
+      setCreatingPost(true);
 
       setPage(1);
 
